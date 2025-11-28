@@ -1,0 +1,31 @@
+[build]
+  publish = "public"
+  command = "echo 'Static file server - no build required'"
+
+# CORS Headers für Cross-Origin Requests
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+    Cache-Control = "public, max-age=3600"
+
+# JSON-Dateien (kürzerer Cache)
+[[headers]]
+  for = "/*.json"
+  [headers.values]
+    Content-Type = "application/json; charset=utf-8"
+    Cache-Control = "public, max-age=300"
+
+# Audio-Dateien (langer Cache)
+[[headers]]
+  for = "/announcements/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Placeholder-Audio (entwicklung)
+[[headers]]
+  for = "/placeholder/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

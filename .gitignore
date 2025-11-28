@@ -1,0 +1,16 @@
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Netlify
+.netlify/
+
+# Temporary files
+*.tmp
+*.temp

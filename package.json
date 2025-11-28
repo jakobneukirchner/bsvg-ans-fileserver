@@ -1,0 +1,22 @@
+{
+  "name": "bsvg-ans-fileserver",
+  "version": "1.0.0",
+  "description": "BSVG Ansagesystem Fileserver - Audio-Dateien und JSON-Daten",
+  "scripts": {
+    "dev": "python -m http.server 8001 --directory public",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "bsvg",
+    "fileserver",
+    "audio",
+    "tram",
+    "announcements"
+  ],
+  "author": "BSVG",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jakobneukirchner/bsvg-ans-fileserver.git"
+  }
+}
