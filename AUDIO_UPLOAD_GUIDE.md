@@ -4,323 +4,182 @@
 
 ---
 
-## ⚙️ Voraussetzungen
+## 🎯 Quick Start
 
-### Software
+### 1. Audio-Datei vorbereiten
 
-- **FFmpeg** (zum Konvertieren)
-  ```bash
-  # macOS
-  brew install ffmpeg
-  
-  # Ubuntu/Debian
-  sudo apt install ffmpeg
-  
-  # Windows
-  # Download von https://ffmpeg.org/
-  ```
+```bash
+# Mit FFmpeg konvertieren (Mono, 96 kbps)
+ffmpeg -i input.wav -ac 1 -b:a 96k line_3.mp3
+```
 
-- **Git** (zum Uploaden)
-  ```bash
-  git --version
-  ```
+### 2. Hochladen via GitHub
 
-### Audio-Format Anforderungen
+1. Gehe zu: https://github.com/jakobneukirchner/bsvg-ans-fileserver
+2. Navigiere zu `public/announcements/de/lines/`
+3. "Add file" → "Upload files"
+4. Wähle `line_3.mp3`
+5. Commit!
+
+### 3. Automatisches Deployment
+
+Netlify deployed automatisch → Audio ist live unter:
+```
+https://bsvg-ibis-fs.netlify.app/announcements/de/lines/line_3.mp3
+```
+
+---
+
+## ⚙️ Format-Anforderungen
 
 ✅ **Empfohlen:**
 - Format: MP3
-- Bitrate: 96 kbps (gute Balance zwischen Qualität und Größe)
+- Bitrate: 96 kbps
 - Sample Rate: 44.1 kHz
 - Kanäle: Mono
-- Normalisierung: -16 LUFS
+- Dateiname: Kleinbuchstaben, Unterstriche
+
+❌ **Nicht erlaubt:**
+- Leerzeichen im Dateinamen
+- Großbuchstaben
+- Sonderzeichen außer Unterstrich
 
 ---
 
-## 🎤 Methode 1: Professionelle Aufnahmen
+## 🎤 Aufnahme-Methoden
 
-### Schritt 1: Aufnahme
+### Methode 1: Professionelle Aufnahme
 
 **Equipment:**
-- USB-Mikrofon (z.B. Blue Yeti, Rode NT-USB)
-- Leiser Raum ohne Hall
-- Aufnahme-Software (Audacity, Adobe Audition, etc.)
+- USB-Mikrofon (z.B. Blue Yeti)
+- Audacity (kostenlos)
 
-**Aufnahme-Einstellungen:**
-- 44.1 kHz, 24-bit
-- Mono-Spur
-- Mikrofon-Abstand: 15-20 cm
-- Aufnahme-Pegel: -12 dB bis -6 dB (Spitzen)
+**Prozess:**
+1. Aufnahme in Audacity (44.1 kHz, Mono)
+2. Rauschen entfernen (Effect → Noise Reduction)
+3. Normalisieren (Effect → Normalize)
+4. Trimmen (Stille entfernen)
+5. Export als MP3 (96 kbps, Mono)
 
-### Schritt 2: Bearbeitung
+### Methode 2: Text-to-Speech (Testing)
 
-1. **Rauschen entfernen** (in Audacity: Effect → Noise Reduction)
-2. **Normalisieren** auf -16 LUFS (Effect → Loudness Normalization)
-3. **Trimmen** - Stille am Anfang/Ende entfernen (100-200ms Padding lassen)
-4. **Fade In/Out** (50ms am Anfang/Ende)
-
-### Schritt 3: Export
-
-**In Audacity:**
-1. File → Export → Export as MP3
-2. Bitrate: 96 kbps
-3. Channel Mode: Mono
-4. Dateiname: `line_3.mp3` (Kleinbuchstaben, Unterstriche)
-
----
-
-## 🤖 Methode 2: Text-to-Speech (TTS)
-
-### Option A: macOS `say` Command
-
+**macOS:**
 ```bash
-#!/bin/bash
-# generate_audio.sh
-
-# Intro
-say -v Anna "Dies ist eine Straßenbahn" -o intro_tram.aiff
-ffmpeg -i intro_tram.aiff -ac 1 -b:a 96k public/announcements/de/intro_tram.mp3
-
-# Linien
-say -v Anna "der Linie eins" -o line_1.aiff
-ffmpeg -i line_1.aiff -ac 1 -b:a 96k public/announcements/de/lines/line_1.mp3
-
-say -v Anna "der Linie zwei" -o line_2.aiff
-ffmpeg -i line_2.aiff -ac 1 -b:a 96k public/announcements/de/lines/line_2.mp3
-
-say -v Anna "der Linie drei" -o line_3.aiff
-ffmpeg -i line_3.aiff -ac 1 -b:a 96k public/announcements/de/lines/line_3.mp3
-
-# Cleanup
-rm *.aiff
+say -v Anna "der Linie drei" -o temp.aiff
+ffmpeg -i temp.aiff -ac 1 -b:a 96k line_3.mp3
+rm temp.aiff
 ```
 
-### Option B: Google Cloud Text-to-Speech
-
+**Linux:**
 ```bash
-# Install Google Cloud SDK
-curl https://sdk.cloud.google.com | bash
-
-# Setup
-gcloud init
-gcloud auth application-default login
-
-# Generate Audio
-curl -X POST \
-  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
-  -H "Content-Type: application/json; charset=utf-8" \
-  -d @request.json \
-  "https://texttospeech.googleapis.com/v1/text:synthesize" > response.json
-
-# request.json:
-{
-  "input": {"text": "der Linie drei"},
-  "voice": {"languageCode": "de-DE", "name": "de-DE-Standard-A"},
-  "audioConfig": {"audioEncoding": "MP3", "sampleRateHertz": 44100}
-}
-```
-
-### Option C: Amazon Polly
-
-```bash
-# Install AWS CLI
-pip install awscli
-
-# Configure
-aws configure
-
-# Generate Audio
-aws polly synthesize-speech \
-  --output-format mp3 \
-  --voice-id Vicki \
-  --text "der Linie drei" \
-  line_3.mp3
+espeak-ng -v de "der Linie drei" -w temp.wav
+ffmpeg -i temp.wav -ac 1 -b:a 96k line_3.mp3
+rm temp.wav
 ```
 
 ---
 
 ## 📦 Upload-Methoden
 
-### Methode 1: GitHub Web-Interface (Einfachst)
+### Methode 1: GitHub Web (Einfachst)
 
-1. Gehe zu [github.com/jakobneukirchner/bsvg-ans-fileserver](https://github.com/jakobneukirchner/bsvg-ans-fileserver)
-2. Navigiere zu `public/announcements/de/[ordner]/`
-3. Klicke **"Add file" → "Upload files"**
-4. Ziehe MP3-Dateien ins Fenster
-5. Commit Message: `Add [description] audio files`
-6. Klicke **"Commit changes"**
-7. Netlify deployed automatisch!
+1. https://github.com/jakobneukirchner/bsvg-ans-fileserver
+2. `public/announcements/de/[ordner]/`
+3. "Add file" → "Upload files"
+4. Drag & Drop MP3
+5. Commit!
 
-### Methode 2: Git Command Line (Fortgeschritten)
+### Methode 2: Git CLI
 
 ```bash
-# Clone Repository
 git clone https://github.com/jakobneukirchner/bsvg-ans-fileserver.git
 cd bsvg-ans-fileserver
 
-# Dateien hinzufügen
-cp ~/Desktop/audio/*.mp3 public/announcements/de/lines/
+cp ~/audio/line_3.mp3 public/announcements/de/lines/
 
-# Status prüfen
-git status
-
-# Alle neuen Dateien hinzufügen
 git add public/announcements/
-
-# Commit
-git commit -m "Add line audio files (1, 2, 3, 5, 10)"
-
-# Push
+git commit -m "Add line 3 audio"
 git push origin main
 ```
 
-### Methode 3: Git LFS (Für große Dateien)
+### Methode 3: GitHub CLI
 
 ```bash
-# Install Git LFS
-git lfs install
+gh repo clone jakobneukirchner/bsvg-ans-fileserver
+cd bsvg-ans-fileserver
 
-# Track MP3 files
-git lfs track "*.mp3"
+cp ~/audio/line_3.mp3 public/announcements/de/lines/
 
-# Add .gitattributes
-git add .gitattributes
-
-# Add audio files
-git add public/announcements/
-git commit -m "Add audio files via LFS"
-git push origin main
+gh repo sync
 ```
 
 ---
 
-## ✅ Validierung nach Upload
+## ✅ Validierung
 
-### 1. Netlify Build prüfen
+### Nach Upload prüfen
 
-Gehe zu [app.netlify.com](https://app.netlify.com) und prüfe den Build-Status.
+**1. Netlify Build:**
+https://app.netlify.com/sites/bsvg-ibis-fs/deploys
 
-### 2. Dateien testen
-
+**2. Datei testen:**
 ```bash
-# JSON prüfen
-curl https://bsvg-ans-files.netlify.app/audio-library.json
-
-# Audio-Datei testen
-curl -I https://bsvg-ans-files.netlify.app/announcements/de/lines/line_3.mp3
+curl -I https://bsvg-ibis-fs.netlify.app/announcements/de/lines/line_3.mp3
 
 # Erwartete Response:
 HTTP/2 200
 content-type: audio/mpeg
 ```
 
-### 3. Im Browser testen
-
+**3. Im Browser:**
 ```
-https://bsvg-ans-files.netlify.app/announcements/de/lines/line_3.mp3
+https://bsvg-ibis-fs.netlify.app/announcements/de/lines/line_3.mp3
 ```
 
-→ Sollte MP3 direkt abspielen!
-
-### 4. In Haupt-App testen
-
-1. Öffne [bsvg-ans-ibis.netlify.app](https://bsvg-ans-ibis.netlify.app)
-2. Gib `003/10` ein
-3. Klicke "HAUPTANSAGE ABSPIELEN"
+**4. In der App:**
+1. Öffne https://bsvg-ans-ibis.netlify.app
+2. Eingabe: `003/10`
+3. "HAUPTANSAGE ABSPIELEN"
 4. Audio sollte abgespielt werden!
 
 ---
 
-## 🛠️ Batch-Konvertierung
-
-### Script für alle Dateien
+## 🛠️ FFmpeg Cheat Sheet
 
 ```bash
-#!/bin/bash
-# convert_all.sh
+# WAV zu MP3 (Mono, 96 kbps)
+ffmpeg -i input.wav -ac 1 -b:a 96k output.mp3
 
-INPUT_DIR="~/Desktop/raw_audio"
-OUTPUT_DIR="public/announcements/de"
+# Stereo zu Mono
+ffmpeg -i stereo.mp3 -ac 1 mono.mp3
 
-# Erstelle Output-Verzeichnisse
-mkdir -p "$OUTPUT_DIR/lines"
-mkdir -p "$OUTPUT_DIR/connectors"
-mkdir -p "$OUTPUT_DIR/destinations"
+# Bitrate reduzieren
+ffmpeg -i high.mp3 -b:a 96k low.mp3
 
-# Konvertiere alle WAV zu MP3 (Mono, 96 kbps)
-for file in "$INPUT_DIR"/*.wav; do
-    filename=$(basename "$file" .wav)
-    ffmpeg -i "$file" -ac 1 -b:a 96k "$OUTPUT_DIR/$filename.mp3"
-done
+# Sample Rate ändern
+ffmpeg -i input.mp3 -ar 44100 output.mp3
 
-echo "Konvertierung abgeschlossen!"
-```
-
-### Normalisierung batch
-
-```bash
-#!/bin/bash
-# normalize_all.sh
-
-for file in public/announcements/de/**/*.mp3; do
-    # Backup
-    cp "$file" "$file.bak"
-    
-    # Normalisiere auf -16 LUFS
-    ffmpeg-normalize "$file" -o "$file" -c:a libmp3lame -b:a 96k -ar 44100
-    
-    echo "Normalized: $file"
-done
+# Batch-Konvertierung
+for f in *.wav; do ffmpeg -i "$f" -ac 1 -b:a 96k "${f%.wav}.mp3"; done
 ```
 
 ---
 
-## 📄 Checkliste vor Upload
+## 📊 Dateigrößen
 
-- [ ] Alle Dateinamen kleingeschrieben
-- [ ] Keine Leerzeichen (nur Unterstriche)
-- [ ] Format: MP3, 96 kbps, 44.1 kHz, Mono
-- [ ] Audio normalisiert (-16 LUFS)
-- [ ] Keine Stille > 500ms am Anfang/Ende
-- [ ] Dateien im richtigen Ordner
-- [ ] `audio-library.json` aktualisiert (falls neue Dateien)
+| Bitrate | 1 Sek | 10 Sek | Qualität |
+|---------|-------|--------|----------|
+| 64 kbps | 8 KB | 80 KB | Ausreichend |
+| 96 kbps | 12 KB | 120 KB | **Empfohlen** |
+| 128 kbps | 16 KB | 160 KB | Sehr gut |
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Problem: "File too large"
+### Problem: "Audio nicht gefunden"
 
-**Lösung:** Komprimiere stärker
-
-```bash
-ffmpeg -i input.mp3 -ac 1 -b:a 64k output.mp3
-```
-
-### Problem: "Git push rejected"
-
-**Lösung:** Verwende Git LFS
-
-```bash
-git lfs install
-git lfs track "*.mp3"
-git add .gitattributes
-git add .
-git commit -m "Add audio via LFS"
-git push origin main
-```
-
-### Problem: "Audio not playing in app"
-
-**Lösung 1:** Prüfe CORS
-
-```bash
-curl -I https://bsvg-ans-files.netlify.app/announcements/de/lines/line_3.mp3
-
-# Sollte enthalten:
-Access-Control-Allow-Origin: *
-```
-
-**Lösung 2:** Prüfe Path in `audio-library.json`
+**Lösung:** Prüfe Path in `audio-library.json`
 
 ```json
 {
@@ -329,22 +188,39 @@ Access-Control-Allow-Origin: *
 }
 ```
 
+### Problem: "CORS Error"
+
+**Lösung:** `netlify.toml` prüfen:
+
+```toml
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+```
+
+### Problem: "Datei zu groß"
+
+**Lösung:** Stärker komprimieren
+
+```bash
+ffmpeg -i large.mp3 -ac 1 -b:a 64k small.mp3
+```
+
 ---
 
-## 📊 Dateigrößen-Referenz
+## 📝 Checkliste
 
-| Bitrate | 1 Sekunde | 10 Sekunden | Qualität |
-|---------|-----------|-------------|----------|
-| 64 kbps | 8 KB | 80 KB | Ausreichend für Ansagen |
-| 96 kbps | 12 KB | 120 KB | **Empfohlen** |
-| 128 kbps | 16 KB | 160 KB | Sehr gut |
-| 192 kbps | 24 KB | 240 KB | Übertrieben für Ansagen |
-
-**Beispiel-Rechnung:**
-- Durchschnittliche Ansage-Datei: 1 Sekunde = **12 KB** (96 kbps)
-- 50 Audio-Dateien = **600 KB**
-- Sehr gut für Web-Delivery!
+- [ ] Dateiname: Kleinbuchstaben, Unterstriche
+- [ ] Format: MP3, 96 kbps, 44.1 kHz, Mono
+- [ ] Datei < 200 KB
+- [ ] Kein Rauschen
+- [ ] Keine lange Stille am Anfang/Ende
+- [ ] Im richtigen Ordner
+- [ ] `audio-library.json` aktualisiert (falls neu)
+- [ ] Netlify Build erfolgreich
+- [ ] Audio in App getestet
 
 ---
 
-**Bei Fragen:** [Issue im Repository erstellen](https://github.com/jakobneukirchner/bsvg-ans-fileserver/issues)
+**Bei Fragen:** [Issue erstellen](https://github.com/jakobneukirchner/bsvg-ans-fileserver/issues)
